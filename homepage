@@ -1,0 +1,613 @@
+// HTML string for quick links section
+var quickLinksHTML = '<a href="{0}" class="QuickLink01HomePage">'+
+		'<span id="Link-{1}"><img src="https://favortechconsulting.sharepoint.com/SiteAssets/{3}" />'+			
+		'</span>'+
+		'<span class="quickLinksUrl">{2}</span>'+
+	'</a>';
+	
+	
+var learnMoreAboutFtcHTML = '<div class="clearfix"><span style="float:left; width:32%; font-size:12px; padding:5px;"><a href="{1}" class="learnMoreAboutFtc">{0}</span></a>  <span>{2}</span> </div>';
+
+//var learnMoreAboutFtcHTML = '<div class="clearfix">'+
+//					'<div class="divTableCell"><a href="{1}" class="learnMoreAboutFtc">{0}</span></a></div>'+
+//		            '<div class="divTableCell"><span>{2}</span></div>'+
+//		            '</div>';
+
+
+
+//var learnMoreAboutFtcHTML = '<div class="clearfix"><a href="{1}" class="learnMoreAboutFtc"></a><span>{0} - {2}</span> </div>';
+
+//var learnMoreAboutFtcHTML = '<div class="clearfix"><a href="{1}" class="learnMoreAboutFtc"><span>{0} - {2}</span></a> </div>';
+
+
+	
+	
+// HTML string for announcements section
+var FacesOfFTCString = '<li>'+
+              '<div class="clearfix">'+
+                '<div class="Ssliderbox01XX" id="Ann-{0}"><img style="width:592px; height:333px; text-align:center; margin:0 auto" src="https://favortechconsulting.sharepoint.com/SiteAssets/{2}" alt=""/></div>'+
+                '<div class="Ssliderbox02XX">'+
+                  '<div class="ftcText01XX" style="text-align:left; padding: 15px; margin:0 auto" >'+
+                    '<p>{1}</p>'+
+                  '</div>'+
+              //    '<div class="ftcLinkbox01" style="text-align:right;"><a href="{4}">Read More</a></div>'+
+                '</div>'+
+              '</div>'+
+            '</li>';
+
+
+var announcementsString =  '<div class="clearfix" style="padding: 8px;">'+
+                '<div style="font-weight:bold">{1}</div>'+
+                '<div>'+
+                    '<p>{0}</p>'+                  
+                '</div>'+
+                '<hr style="margin:0 0 5px 0; padding:0" />'+
+              '</div>';
+
+
+ var PresentaionBrownBagsString = '<div  class="divTableRow">'+
+ 					'<div class="divTableCell"><a href="{5}" target="_blank"><span>{0}</span></a></div>'+
+ 					
+		            '<div class="divTableCell">{1}</div>'+
+		            '<div class="divTableCell">{2}</div>'+
+		           	'<div class="divTableCell">{3}</div>'+
+		            '<div class="divTableCell">{4}</div>'+
+		            '</div>';
+ 
+ 
+ 
+ var AnniversariesString = '<div  style="float:left; width:32%; font-size:11px; padding:5px;">'+
+ 					'<div >{0} <span>{1}-{2}</span> </div>'+	           
+		                
+		            '</div>';
+
+
+var NewHireString = '<div class="" style="float:left; width:32%; font-size:11px; padding:5px; " >'+
+					'<div class="">{0} <span>{1}</span> <br>{2} </div>'+		           
+		            '</div>';
+
+			       //var NewHireString = '<div  class="divTableRow">'+
+					//'<div class="divTableCell">{0} <span>{1}</span> <br>{2}<br> </div>'+		           
+		            //'</div>';
+
+
+// HTML string for Who we are section
+/*var whoWeAreString = '<li>'+
+              '<div class="teamBox01"><a href="{0}"> <span>'+
+                '<div class="teamimgBox" ID="wwd-{1}"><img src="{2}" alt=""/></div>'+
+                '</span> <span> <span>{3}</span><span>{4}</span></span> </a> </div>'+
+            '</li>';*/
+            
+var whoWeAreString = '<li>'+
+              '<div class="teamBox01"><a href="{0}" target="_blank"> <span>'+
+                '<div class="teamimgBox" ID="{2}"><img src="https://favortechconsulting.sharepoint.com/SiteAssets/WhoWeAreImages/{4}"/></div>'+
+                '</span> <span> <span>{2}</span><span>{3}</span></span> </a> </div>'+
+            '</li>';
+            
+            
+                     
+                     
+
+// Implementing String.format utility.
+(function () {
+   	// First, checks if it isn't implemented yet.
+	if (!String.prototype.format) {
+	  String.prototype.format = function() {
+	    var args = arguments;
+	    return this.replace(/{(\d+)}/g, function(match, number) { 
+	      return typeof args[number] != 'undefined'
+	        ? args[number]
+	        : match
+	      ;
+	    });
+	  };
+	}
+})();
+function getItems(url){
+    return $.ajax({       
+        url: url,        
+        type: "GET",
+        headers: {
+            "accept": "application/json;odata=verbose",
+        }
+    });
+}
+function getItemsFail(err){
+    // error callback
+    console.log(JSON.stringify(err));
+}
+
+$(document).ready(function(){
+	
+	//Get user's personal MySite url
+//	SP.SOD.executeFunc('sp.js', 'SP.ClientContext', GetSliderImages);	
+	// Getting the slider images items.
+	//GetSliderImages();
+	
+	
+	GetFacesOfFTC();
+	// Getting Announcement Items.
+	GetAnnouncements();
+	// Getting Text Header
+	GetTextHeader();
+	// Getting Quick Links
+	GetQuickLinks();	
+	// Getting users from who we are list
+///////////	GetWhoWeAre();	
+	GetWhoWeAreLocal();
+	//SyntaxHighlighter.all();
+	GetPresentaionBrownBags();
+	
+	
+	GetAnniversaries();
+	
+	GetNewHire();
+	
+	
+	GetLearnMoreAboutFTC();
+	
+	$('#slider01').flexslider({
+	    animation: "slide",
+	    start: function(slider){
+	      $('body').removeClass('loading');
+	    }
+	});
+	
+		$("body").on("click", "#readMore", function(event){ 
+				event.preventDefault();		 				 
+				var	bodyId = $(this).attr("ref");
+				$.colorbox({html:'<div class="modalLightWrapper">' + getAnnouncementsModalArray[bodyId] + '</div>' ,  width:"50%", height:"50%",arrowKey: false});
+	});
+	
+
+	var elem = document.getElementById("#O365_NavHeader");				// please fix, elem in not defined
+		console.log(elem);
+           if(elem != null) {
+                var dummyevent = new Array();
+                dummyevent["target"] = elem;
+                dummyevent["srcElement"] = elem;
+                WpClick(dummyevent);
+                _ribbonStartInit("Ribbon.Browse", true)
+            }
+
+	
+	
+});
+
+
+
+function GetTextHeader(){
+	$('#ftcWebPart2').load("https://favortechconsulting.sharepoint.com/Finance/SiteAssets/FinanceText.html");
+}
+
+function GetSliderImages(){
+	var url = _spPageContextInfo.webAbsoluteUrl +  "/_api/web/lists/GetBytitle('Image Slider')/Items?$select=FileRef";
+	getItems(url).then(function(data){
+		if(data.d.results.length > 0){
+			var result = data.d.results; // set value of result variable 
+	        if(result && result.length > 0){
+	        	for(var i=0; i < result.length; i++){
+	        		$("#slider01 .slides").append("<li> <img src=" + result[i].FileRef + " /> </li>");
+	        	}
+	        }
+	    }
+	}, getItemsFail);
+}
+function GetWhoWeAreX(){
+	var url = _spPageContextInfo.webAbsoluteUrl +  "/_api/web/lists/GetBytitle('Who We Are')/Items?$expand=Member&$select=Url,ID,Member/Name,Member/FirstName,Member/LastName,Member/JobTitle,ID,FieldValuesAsHtml";
+	getItems(url).then(function(data){
+		if(data.d.results.length > 0){
+			var result = data.d.results; // set value of result variable 
+	        if(result && result.length > 0){
+	        	for(var i=0; i < result.length; i++){
+					var userAccount  = encodeURIComponent(result[i].Member.Name);
+					var jobTitle = result[i].Member.JobTitle ? result[i].Member.JobTitle : "";
+					var firstName = result[i].Member.FirstName ? result[i].Member.FirstName  : "";
+					var lastName = result[i].Member.LastName ? result[i].Member.LastName:"";
+					var name = firstName + ( lastName ? (", " + lastName) : "");
+	        		var url = result[i].Url ? result[i].Url.Url : "#";
+	        		var userObj = new Object();
+	        		userObj = GetUserProfileProperties(userAccount);
+	        		//console.log(userObj);
+	        		/*if(Object.keys(userObj).length > 0){
+	        			var str = whoWeAreString.format(userObj.userUrl,result[i].ID, (userObj.userImage ? userObj.userImage : "") ,userObj.DisplayName,jobTitle); 
+	        			$("#slider03 .slides").append(str);	
+	        		}
+	        		*/
+	        		result[i].ID = userObj.userImage;
+	        		url = userObj.userUrl;
+	        		name = userObj.DisplayName;
+	        		/*console.log(GetPublishingImage(result[i].ID,result[i].FieldValuesAsHtml,"wwd-"));*/
+	        		var str = whoWeAreString.format(url,result[i].ID, name,jobTitle); 
+	        		$("#slider03 .slides").append(str);	
+	        		/*var image = userObj.userImage;*/
+	        		/*result[i].ID = userObj.userImage;
+	        		/*GetPublishingImage(result[i].ID,result[i].FieldValuesAsHtml,"wwd-");*/
+	        		if(i == (result.length - 1)){
+        			  $('#slider03').flexslider({
+					    animation: "slide",
+					    animationLoop:false,
+					    slideshow:false,
+					    itemWidth: 135,
+					    itemMargin: 2,
+					    minItems: 1,
+					    maxItems: 8
+					  });
+	        		}
+        		}
+	        }
+	    }
+	}, getItemsFail);
+}
+
+function GetWhoWeAreLocal(){
+
+	
+	var url = _spPageContextInfo.webAbsoluteUrl +  "/_api/web/lists/GetBytitle('Who We Are')/Items";
+	getItems(url).then(function(data){
+		if(data.d.results.length > 0){
+			var result = data.d.results; // set value of result variable 
+	        if(result && result.length > 0){
+	        	for(var i=0; i < result.length; i++){
+	        		var fullName = result[i].FullName ? result[i].FullName : "";
+					var jobTitle = result[i].JobTitle ? result[i].JobTitle : "";
+	        		var profileURL  = result[i].ProfileURL  ? result[i].ProfileURL  : "";
+	        		var image = result[i].Image ? result[i].Image : "";
+	        		var str = whoWeAreString.format(profileURL,image, fullName, jobTitle); 
+	        		$("#slider03 .slides").append(str);	
+	        		if(i == (result.length - 1)){
+        			  $('#slider03').flexslider({
+					    animation: "slide",
+					    animationLoop:false,
+					    slideshow:false,
+					    itemWidth: 135,
+					    itemMargin: 2,
+					    minItems: 1,
+					    maxItems: 8
+					  });
+	        		}
+        		}
+	        }
+	    }
+	}, getItemsFail);
+	
+}
+
+
+function GetQuickLinks(){
+	var url = _spPageContextInfo.webAbsoluteUrl +  "/_api/web/lists/GetBytitle('Quick Links')/Items?$OrderBy=Order&$top=10";
+	getItems(url).then(function(data){
+		if(data.d.results.length > 0){
+			var result = data.d.results; // set value of result variable 
+	        if(result && result.length > 0){
+	        	for(var i=0; i < result.length; i++){	        		
+	        		var str = quickLinksHTML.format(result[i].Link_x0020_Url.Url,result[i].ID,result[i].Title,result[i].ImageUrl);	
+	        	//	alert(str )        
+	        		$(".quickLcontentbox").append(str);
+	        	//	GetPublishingImage(result[i].ID,result[i].FieldValuesAsHtml,"Link-");	
+	        		
+	     	    }
+	        }
+	    }
+	}, getItemsFail);
+}
+
+
+
+
+function GetLearnMoreAboutFTC(){
+	var url = _spPageContextInfo.webAbsoluteUrl +  "/_api/web/lists/GetBytitle('LearnMoreAboutFTC')/Items?&$top=10";
+	getItems(url).then(function(data){
+		if(data.d.results.length > 0){
+			var result = data.d.results; // set value of result variable 
+			//console.log(result);
+			
+			
+	        if(result && result.length > 0){
+	        	for(var i=0; i < result.length; i++){	        		
+	        
+	        		var str = learnMoreAboutFtcHTML.format(result[i].UrlLink.Description, result[i].UrlLink.Url, result[i].Title);	
+//	        			        		var str = learnMoreAboutFtcHTML.format(result[i].Link_x0020_Url.Url,result[i].ID,result[i].Title);	
+	        	//	alert(str )        
+	        		$("#learnMoreAboutFtc").append(str);
+	        	//	GetPublishingImage(result[i].ID,result[i].FieldValuesAsHtml,"Link-");	
+	        		
+	     	    }
+	        }
+	    }
+	}, getItemsFail);
+}
+
+
+
+
+
+var getFacesOfFTCModalArray = [];
+function GetFacesOfFTC(){
+	var url = _spPageContextInfo.webAbsoluteUrl +  "/_api/web/lists/GetBytitle('HomePageSlider')/Items?&$OrderBy=Expires&$top=10";
+//console.log(url )
+	getItems(url).then(function(data){
+		if(data.d.results.length > 0){
+			var result = data.d.results; // set value of result variable 
+	        if(result && result.length > 0){
+	        	for(var i=0; i < result.length; i++){
+	        	    // Display form URL of the announcemnet
+			        var redirectUrl = _spPageContextInfo.webAbsoluteUrl + "/Lists/FTC%20Announcements/DispForm.aspx?ID=" + result[i].ID +"&Source=" +_spPageContextInfo.webAbsoluteUrl;
+			        // Get body in variable and truncate if character lenght is > 500
+			        var bodyText = $(result[i].Body).text();	
+			        getFacesOfFTCModalArray.push(bodyText)		        
+			        if(bodyText.length > 550){
+			        	bodyText = bodyText.substr(0,550) + '... <div class="ftcLinkbox01" style="text-align:right;"><a  id="readMore" ref="'+ i +'" href="'+ redirectUrl +'">Read More</a></div>';
+			        }	        // Building the HTML string to accomodate slider of the Announcement
+			        var str = FacesOfFTCString.format(result[i].ID,bodyText,result[i].ImageName);
+//			        			        var str = announcementsString.format(result[i].ID,result[i].Expires.split("T")[0],result[i].Title,bodyText,redirectUrl);
+			        
+			        $("#slider02 .slides").append(str);
+	        	//	GetPublishingImage(result[i].ID,result[i].FieldValuesAsHtml, "Ann-");
+	        		
+	        		if(i == (result.length - 1)){
+	        			$('#slider02').flexslider({
+					        animation: "slide",
+					        animationLoop:true,
+					        slideshowSpeed: 10000,
+					        /*controlNav: true,
+					        start: function(slider){
+					          $('body').removeClass('loading');
+					        }
+					        */
+				      	});
+	        		}
+	        	} // for
+	        	
+	        }
+	    }
+	}, getItemsFail);
+}
+
+
+function GetPresentaionBrownBags(){
+	var url = _spPageContextInfo.webAbsoluteUrl +  "/_api/web/lists/GetBytitle('Presentaion and Brown Bags')/Items?&$OrderBy=CourseDate desc&$top=5";//console.log(url);
+	getItems(url).then(function(data){
+		if(data.d.results.length > 0){
+			var result = data.d.results; // set value of result variable 	
+			//console.log(result)
+	        if(result && result.length > 0){	        	
+	        	
+	        	var str = "";
+	        	for(var i=0; i < result.length; i++){
+	       			str+= PresentaionBrownBagsString.format(result[i].Title,result[i].Description,result[i].Presentor, result[i].CourseDate.split("T")[0], result[i].CourseType, result[i].UrlLink.Url);
+			      			          
+	        	} // for
+	        	$("#brownbags").replaceWith(str);
+	        	
+	        	$("#brownbagarchive").append('<a target="_blank" href="https://favortechconsulting.sharepoint.com/Employee%20Services/hr/Presentation%20and%20Brown%20bags%20repository/Forms/Thumbnails.aspx" > archive links </a>');
+
+
+	        	//for(var i=0; i < result.length; i++){
+	       			//var str = PresentaionBrownBagsString.format(result[i].Title,result[i].Description,result[i].Presentor, result[i].CourseDate.split("T")[0], result[i].CourseType);
+			      //$("#brownbags").append(str);	
+			          
+	        	//} // for        	
+	        }
+	    }
+	}, getItemsFail);
+}
+
+
+function GetNewHire(){
+	var url = _spPageContextInfo.webAbsoluteUrl +  "/_api/web/lists/GetBytitle('userdata')/items?$top=1000&$select=Title,LastName,JobTitle,HireDate"; //console.log(url);
+	getItems(url).then(function(data){
+		if(data.d.results.length > 0){
+			var result = data.d.results; // set value of result variable //console.log(result )
+	        if(result && result.length > 0){
+	        	
+	        	var today = moment().toDate();							//fix here
+	        	
+	        	
+	        	var str = "";
+	        	for(var i=0; i < result.length; i++){
+	        	
+		        	var monthofhire = moment(result[i].HireDate, 'YYY-MM-DD');
+		        	
+		        	months = monthofhire.format('MMMM')	
+		        	
+					add30day = moment(monthofhire).add(30, "days")	
+					
+		        	
+		        	var thismonth = today.format('M').split(" ")[0];		        	
+		        	
+	  				//if(months == thismonth) {
+	  				
+	  					if ( moment().diff(result[i].HireDate, 'years') ==0 )
+	  					{
+	  					
+	  					
+					        	
+					        	
+	  					if( today  < moment(result[i].HireDate).add(30, "days") )
+	  					{		
+	  					
+	  						  					
+	  					     str+= NewHireString.format(result[i].Title, result[i].LastName,  result[i].JobTitle );  					     
+	  					     
+						}	
+						}					
+	   		   		//}   		    		       			
+			      			          
+	        	} // for
+	        	$(".getMonth").text(thismonth.toUpperCase());
+	        	
+	        	$("#newHires").replaceWith(str);
+	        		
+	        		
+                           	
+	        }
+	    }
+	}, getItemsFail);
+}
+
+
+  
+
+
+function GetAnniversaries(){
+	var url = _spPageContextInfo.webAbsoluteUrl +  "/_api/web/lists/GetBytitle('userdata')/items?$top=1000"; //console.log(url);
+	getItems(url).then(function(data){
+		if(data.d.results.length > 0){
+			var result = data.d.results; // set value of result variable //		console.log(result )
+	        if(result && result.length > 0){ 		        	
+	        	
+	        			        	  
+				//var today = (moment().toDate()).format("MM/DD/YYYY");
+		        var str = "";
+		        var days = [];
+		        var td = new Date();
+		        var today = moment(td,"MM/DD/YYYY");
+				//var dd = String(today.getDate()).padStart(2, '0');
+			    for(var i=0; i < result.length; i++)
+			    { 
+			        	var hd = new Date(result[i].HireDate);
+				        var hireDate = moment(hd, "MM/DD/YYYY");				//fix here
+				        //result[i].HireDate;
+				        //moment(result[i].HireDate, 'YYY-MM-DD');				        
+				        				        
+						var hireDateExtended = moment(hireDate).add(30, "days"); 
+						//var hireDateExtended = moment((new Date().setDate(hd.getDate()+30)),"DD/MM/YYYY");				       
+				        
+				        		
+			  			//if((today <= hireDate) && (today >= hireDateExtended)) 			 {	str+= AnniversariesString.format(result[i].Title, result[i].LastName, hireDate);}	
+			   		   	
+			   		   	//if(moment(today).isAfter(hireDate) && moment(today).isBefore(hireDateExtended))		str+= AnniversariesString.format(result[i].Title, result[i].LastName, hireDate);	}
+			   		   
+			   		   
+			   		
+			   		   //console.log(oneyear);
+			   		   var calculatedYears = moment().diff(hireDate , 'years', false);
+			   		   
+			   		   var yearSubracted = moment(today).subtract(calculatedYears, 'year');
+			   		    
+   					
+			   		   	
+					if((yearSubracted.isBetween(hireDate, hireDateExtended))
+						&&(calculatedYears>0 && calculatedYears< 20 ))
+			    	{
+			   			str+= AnniversariesString.format(result[i].Title, result[i].LastName,calculatedYears);
+			   			//days.push({Year:calculatedYears, fullName:result[i].Title + ' '+ result[i].LastName} );
+			    	}
+			    	
+			    			   		   	
+					//if(today.isBetween(hireDate, hireDateExtended)){	str+= AnniversariesString.format(result[i].Title, result[i].LastName, hireDate,calculateyears  )}
+   	
+			      		   			   		  
+			   		   	
+			   		   //	console.log(moment(today).isBetween(hireDate, hireDateExtended));	          
+			        } // for	        
+		        	//console.log(days);	
+		        $("#ANNIVERSARIESfirst").replaceWith(str);
+		        
+	
+		        
+		        
+		        const groupBy = key => array =>
+				  array.reduce((objectsByKeyValue, obj) => {
+				    const value = obj[key];
+				    objectsByKeyValue[value] = (objectsByKeyValue[value] || []).concat(obj);
+				    return objectsByKeyValue;
+				  }, {});
+				  
+				
+				const groupByYear = groupBy('year');
+				
+				
+				console.log(
+				  JSON.stringify({
+				    groupByYear : groupByYear(days),
+				    
+				  }, null, 2)
+				);
+						        
+		     
+		        
+			//console.log(data);
+	
+	        		        	
+	        }
+	    }
+	}, getItemsFail);
+}
+
+
+
+
+
+
+
+
+var getAnnouncementsModalArray = [];
+function GetAnnouncements(){
+	var url = _spPageContextInfo.webAbsoluteUrl +  "/_api/web/lists/GetBytitle('FTC Announcements')/Items?&$OrderBy=Expires&$top=10";
+//console.log(url )
+	getItems(url).then(function(data){
+		if(data.d.results.length > 0){
+			var result = data.d.results; // set value of result variable 
+		//	console.log(result )
+	        if(result && result.length > 0){
+	        	for(var i=0; i < result.length; i++){
+	        	    // Display form URL of the announcemnet
+			        var redirectUrl = _spPageContextInfo.webAbsoluteUrl + "/Lists/FTC%20Announcements/DispForm.aspx?ID=" + result[i].ID +"&Source=" +_spPageContextInfo.webAbsoluteUrl;
+			        // Get body in variable and truncate if character lenght is > 500
+
+				 var dateFormat = result[i].AnnDate.split("T")[0];
+			        var bodyText = $(result[i].Body).text();	
+			      //  getAnnouncementsModalArray.push(bodyText)		        
+			     //   if(bodyText.length > 550){
+			     //   	bodyText = bodyText.substr(0,550) + '... <div class="ftcLinkbox01" style="text-align:right;"><a  id="readMore" ref="'+ i +'" href="'+ redirectUrl +'">Read More</a></div>';
+			     //   }	        // Building the HTML string to accomodate slider of the Announcement
+			        var str = announcementsString.format(bodyText, dateFormat);
+//			        			        var str = announcementsString.format(result[i].ID,result[i].Title,bodyText,redirectUrl);			      
+			        
+			        $("#announcments").append(str);
+	        	//	GetPublishingImage(result[i].ID,result[i].FieldValuesAsHtml, "Ann-");
+	        		
+	      
+	        	} // for
+	        	
+	        }
+	    }
+	}, getItemsFail);
+}
+
+
+
+function GetPublishingImage(itemID, fldVlAsHtml, idToAppend){
+	getItems(fldVlAsHtml.__deferred.uri+"?$select=Link_x0020_Image").then(function(data){
+		if(data.d){
+			var result = data.d; 
+			// Setting the HTML image SRC attribute
+		//	console.log($(result.LinkImage).attr("src"));
+			var imageSRC = ( result.Link_x0020_Image.length > 0 ? $(result.Link_x0020_Image).attr("src") : "/_layouts/15/userphoto.aspx");
+			// Appending to respective DIV
+			$("#" + idToAppend + itemID + " img").attr("src",imageSRC);
+	    }
+	}, getItemsFail);
+}
+function GetUserProfileProperties(userAccount) {
+	var retObj = new Object();
+    //Get the current user's account information
+    $.ajax({
+	  url: _spPageContextInfo.webAbsoluteUrl + "/_api/sp.userprofiles.peoplemanager/getpropertiesfor(@v)?@v='" + userAccount + "'",
+	  type: "GET",
+	  async: false,
+	  headers: { "accept": "application/json;odata=verbose" },
+	  success: function (data) {            
+            retObj.DisplayName = data.d.DisplayName;
+            retObj.userImage = data.d.PictureUrl;
+            retObj.userUrl = data.d.UserUrl;            
+
+        },
+	  error:  function (err) {
+            console.error(JSON.stringify(err));
+        }
+	});
+	return retObj;
+}
